@@ -25,9 +25,10 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+     client.connect();
 
     const CategoryCollection = client.db('carToys').collection('carServices');
+    const bookingCollection = client.db('carToys').collection('bookings');
 
     app.get('/carServices', async(req, res) => {
       const cursor = CategoryCollection.find();
@@ -38,9 +39,23 @@ async function run() {
     app.get('/carServices/:id', async(req, res) => {
       const id = req.params.id;
       const query = {_id: new ObjectId(id)}
+      const options = {
+        // sort matched documents in descending order by rating
+        // Include only the `title` and `imdb` fields in the returned document
+        projection: { title: 1, price: 1,  url: 1},
+      };
       const result = await CategoryCollection.findOne(query);
       res.send(result);
     })
+
+
+    // // bookings
+    app.post('/bookings', async (req,res) => {
+      const booking = req.body;
+      console.log(booking)
+      const result = await bookingCollection.insertOne(booking);
+      res.send(result);
+    });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
@@ -59,5 +74,5 @@ app.get('/', (req, res) => {
 })
 
 app.listen(port, () => {
-  console.log(`Car Doctor Server is runnig on port ${port}`)
+  console.log(`Car Toy Server is runnig on port ${port}`)
 })

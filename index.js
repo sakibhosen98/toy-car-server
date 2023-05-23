@@ -52,7 +52,11 @@ async function run() {
     // // bookings
 
     app.get('/bookings', async (req, res) => {
-      const cursor = bookingCollection.find();
+      let query = {};
+      if(req.query?.email){
+        query = {email: req.query.email}
+      }
+      const cursor = bookingCollection.find(query);
       const result = await cursor.toArray();
       console.log(result)
       res.send(result)
